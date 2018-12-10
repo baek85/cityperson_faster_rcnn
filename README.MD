@@ -1,4 +1,5 @@
 # A Simple and Fast Implementation of Faster R-CNN
+https://github.com/chenyuntc/simple-faster-rcnn-pytorch
 
 ## 1. Introduction
 
@@ -113,6 +114,17 @@ See [demo.ipynb](https://github.com/chenyuntc/simple-faster-rcnn-pytorch/blob/ma
 
 4. modify `voc_data_dir` cfg item in `utils/config.py`, or pass it to program using argument like `--voc-data-dir=/path/to/VOCdevkit/VOC2007/` .
 
+#### Citypersons
+1. Download cityscape leftImg8bit / gtBbox data
+
+2. It should have this basic structure
+		```Bash
+   $cityscapes/                           # development kit
+   $cityscapes/left8bitImg/                   # Images
+   $cityscapes/gtBboxCityPersons               # bounding box dataset
+   # ... and several other directories ...
+		```
+3. modify 'city_data_dir' cfg item in 'utils/config.py'
 
 ### 5.2 Prepare caffe-pretrained vgg16
 
