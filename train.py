@@ -73,7 +73,10 @@ def train(**kwargs):
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
     lr_ = opt.lr
+    #eval_result = eval(test_dataloader, faster_rcnn, test_num=opt.test_num)
+    print('train start')
     for epoch in range(opt.epoch):
+        print('Epoch {} start'.format(epoch))
         trainer.reset_meters()
         for ii, (img, bbox_, label_, scale) in tqdm(enumerate(dataloader)):
             scale = at.scalar(scale)
@@ -106,6 +109,7 @@ def train(**kwargs):
                 trainer.vis.text(str(trainer.rpn_cm.value().tolist()), win='rpn_cm')
                 # roi confusion matrix
                 trainer.vis.img('roi_cm', at.totensor(trainer.roi_cm.conf, False).float())
+        print('Validation start')
         eval_result = eval(test_dataloader, faster_rcnn, test_num=opt.test_num)
         trainer.vis.plot('test_map', eval_result['map'])
         lr_ = trainer.faster_rcnn.optimizer.param_groups[0]['lr']

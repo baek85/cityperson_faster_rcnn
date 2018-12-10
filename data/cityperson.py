@@ -9,7 +9,7 @@ import json
 
 class CITYBboxDataset:
     def __init__(self, data_dir, train=True,
-                 use_difficult=False, return_difficult=False,
+                 use_difficult=True, return_difficult=True,
                  ):
         self.train=train
         self.img_filenames, self.annotation_filenames = self._get_valid_data(data_dir)
@@ -43,21 +43,25 @@ class CITYBboxDataset:
         with open(annotation, 'r') as f:
             annot = json.load(f)
         bbox_list = list()
+        difficult = list()
         for i in annot['objects']:
             if i['label'] != 'ignore':
                 x, y, w, h = i['bbox']
                 bbox_list += [[y, x, y + h, x + w]]
+                if(i['bbox'] != i['bboxVis']):
+                    difficult.append(True)
+                else:
+                    difficult.append(False)
         bbox = np.stack(bbox_list).astype(np.float32)
         # Get label.
         label = np.zeros(bbox.shape[0], dtype=np.int32)
 
-        difficult = list()
+        
         
 
         ##### bbox와 bboxVis가 다른걸 이용해서 occlued 인지 아닌지 판단 가능
         # When `use_difficult==False`, all elements in `difficult` are False.
         difficult = np.array(difficult, dtype=np.bool).astype(np.uint8)  # PyTorch don't support np.bool
-
         
 
         # if self.return_difficult:
