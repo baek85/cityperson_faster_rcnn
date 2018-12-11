@@ -4,7 +4,7 @@ import numpy as xp
 import six
 from six import __init__
 
-
+from utils.config import opt
 def loc2bbox(src_bbox, loc):
     """Decode bounding boxes from bounding box offsets and scales.
 
@@ -137,6 +137,9 @@ def bbox2loc(src_bbox, dst_bbox):
     dx = (base_ctr_x - ctr_x) / width
     dh = xp.log(base_height / height)
     dw = xp.log(base_width / width)
+
+    dw = np.minimum(dw, opt.BBOX_XFORM_CLIP)
+    dh = np.minimum(dh, opt.BBOX_XFORM_CLIP)
 
     loc = xp.vstack((dy, dx, dh, dw)).transpose()
     return loc

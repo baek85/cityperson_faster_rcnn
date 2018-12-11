@@ -14,7 +14,7 @@ from torch.utils import data as data_
 from trainer import FasterRCNNTrainer
 from utils import array_tool as at
 from utils.vis_tool import visdom_bbox
-from utils.eval_tool import eval_detection_voc
+from utils.eval_tool import eval_detection_voc, eval_fppi_mr
 
 # fix for ulimit
 # https://github.com/pytorch/pytorch/issues/973#issuecomment-346405667
@@ -39,11 +39,18 @@ def eval(dataloader, faster_rcnn, test_num=10000):
         pred_labels += pred_labels_
         pred_scores += pred_scores_
         if ii == test_num: break
-
+    
     result = eval_detection_voc(
         pred_bboxes, pred_labels, pred_scores,
         gt_bboxes, gt_labels, gt_difficults,
         use_07_metric=True)
+    
+    """
+    result = eval_fppi_mr(
+        pred_bboxes, pred_labels, pred_scores,
+        gt_bboxes, gt_labels, gt_difficults,
+        use_07_metric=True)
+    """
     return result
 
 
@@ -73,7 +80,7 @@ def train(**kwargs):
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
     lr_ = opt.lr
-    #eval_result = eval(test_dataloader, faster_rcnn, test_num=opt.test_num)
+    eval_result = eval(test_dataloader, faster_rcnn, test_num=opt.test_num)
     print('train start')
     for epoch in range(opt.epoch):
         print('Epoch {} start'.format(epoch))

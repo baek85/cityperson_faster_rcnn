@@ -1,5 +1,5 @@
 from pprint import pprint
-
+import numpy as np
 
 # Default Configs for training
 # NOTE that, config items could be overwriten by passing argument through command line.
@@ -14,6 +14,8 @@ class Config:
     num_workers = 8
     test_num_workers = 8
 
+    ## BBOX ERROR
+    BBOX_XFORM_CLIP = np.log(1000. / 16.)
     # sigma for l1_smooth_loss
     rpn_sigma = 3.
     roi_sigma = 1.
