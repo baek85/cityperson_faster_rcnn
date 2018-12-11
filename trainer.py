@@ -13,6 +13,12 @@ from utils.vis_tool import Visualizer
 from utils.config import opt
 from torchnet.meter import ConfusionMeter, AverageValueMeter
 
+
+## Add
+import numpy as np
+import torch
+from torch.autograd import Variable
+
 LossTuple = namedtuple('LossTuple',
                        ['rpn_loc_loss',
                         'rpn_cls_loss',
@@ -168,6 +174,7 @@ class FasterRCNNTrainer(nn.Module):
         self.optimizer.zero_grad()
         losses = self.forward(imgs, bboxes, labels, scale)
         losses.total_loss.backward()
+        clip_gradient(self.faster_rcnn, 10.)
         self.optimizer.step()
         self.update_meters(losses)
         return losses
@@ -256,3 +263,22 @@ def _fast_rcnn_loc_loss(pred_loc, gt_loc, gt_label, sigma):
     # Normalize by total number of negtive and positive rois.
     loc_loss /= ((gt_label >= 0).sum().float()) # ignore gt_label==-1 for rpn_loss
     return loc_loss
+
+
+def clip_gradient(model, clip_norm):
+    """Computes a gradient clipping coefficient based on gradient norm."""
+    totalnorm = 0
+    for p in model.parameters():
+        if p.requires_grad:
+            modulenorm = p.grad.data.norm()
+            totalnorm += modulenorm ** 2
+    totalnorm = np.sqrt(totalnorm)
+    clip_norm = np.array([clip_norm])
+    clip_norm = Variable(torch.from_numpy(clip_norm)).type(torch.float)
+    norm = clip_norm / max(totalnorm, clip_norm)
+    norm = Variable(norm).to('cuda')
+    #if(norm<1):
+        #print('gradient clipping')
+    for p in model.parameters():
+        if p.requires_grad:
+            p.grad.mul_(norm)

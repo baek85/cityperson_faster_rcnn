@@ -4,7 +4,7 @@ import cupy as cp
 from model.utils.bbox_tools import bbox2loc, bbox_iou, loc2bbox
 from model.utils.nms import non_maximum_suppression
 
-
+import math
 class ProposalTargetCreator(object):
     """Assign ground truth bounding boxes to given RoIs.
 
@@ -403,8 +403,19 @@ class ProposalCreator:
 
         # Remove predicted boxes with either height or width < threshold.
         min_size = self.min_size * scale
-        hs = roi[:, 2] - roi[:, 0]
-        ws = roi[:, 3] - roi[:, 1]
+        hs = roi[:, 2] - roi[:, 0] + 1
+        ws = roi[:, 3] - roi[:, 1] + 1
+        
+        for idx in range(len(ws)):
+            if(np.isnan(ws[idx])):
+                ws[idx] = 0
+                print('ws nan')
+        for idx in range(len(hs)):
+            if(np.isnan(hs[idx])):
+                hs[idx] = 0
+                print('hs nan')
+        
+        #print('\nhs = {}, ws = {}, min_size = {}'.format(hs, ws, min_size))
         keep = np.where((hs >= min_size) & (ws >= min_size))[0]
         roi = roi[keep, :]
         score = score[keep]
